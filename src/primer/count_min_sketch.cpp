@@ -42,18 +42,41 @@ CountMinSketch<KeyType>::CountMinSketch(uint32_t width, uint32_t depth) : width_
 
 template <typename KeyType>
 CountMinSketch<KeyType>::CountMinSketch(CountMinSketch &&other) noexcept : width_(other.width_), depth_(other.depth_) {
+  // 移动构造，使用右值引用
   /** @TODO(student) Implement this function! */
+  table_ = std::move(other.table_);
+  hash_functions_ = std::move(other.hash_functions_);
 }
 
 template <typename KeyType>
+// 对等号进行重载
 auto CountMinSketch<KeyType>::operator=(CountMinSketch &&other) noexcept -> CountMinSketch & {
   /** @TODO(student) Implement this function! */
+  // 不能复制自己
+  // this 是一个指向对象本身的指针
+  if (this == &other) {
+    return *this;
+  }
+
+  // 移动资源
+  this->width_ = other.width_;
+  this->depth_ = other.depth_;
+
+  // 移动需要拷贝的资源
+  this->table_ = std::move(other.table_);
+  this->hash_functions_ = std::move(other.hash_functions_);
+
   return *this;
 }
 
 template <typename KeyType>
 void CountMinSketch<KeyType>::Insert(const KeyType &item) {
   /** @TODO(student) Implement this function! */
+  std::lock_guard<std::mutex> lock(mutex_);
+  for (uint32_t row = 0; row < depth_; row++) {
+    uint32_t col = hash_functions_[row](item) % width_;
+    table_[row][col]++;
+  }
 }
 
 template <typename KeyType>
@@ -66,12 +89,25 @@ void CountMinSketch<KeyType>::Merge(const CountMinSketch<KeyType> &other) {
 
 template <typename KeyType>
 auto CountMinSketch<KeyType>::Count(const KeyType &item) const -> uint32_t {
-  return 0;
+  uint32_t min_value = INT_MAX;
+  for (uint32_t row = 0; row < depth_; row++) {
+    uint32_t col = hash_functions_[row](item) % width_;
+    uint32_t freq = table_[row][col];
+
+    if (freq < min_value) {
+      min_value = freq;
+    }
+  }
+
+  return min_value;
 }
 
 template <typename KeyType>
 void CountMinSketch<KeyType>::Clear() {
   /** @TODO(student) Implement this function! */
+   for (auto &row : table_) {
+    std::fill(row.begin(), row.end(), 0);
+   }
 }
 
 template <typename KeyType>
