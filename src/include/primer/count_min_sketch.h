@@ -12,12 +12,15 @@
 
 #pragma once
 
+#include <algorithm>
 #include <climits>
 #include <cstdint>
 #include <functional>
 #include <mutex>
+#include <unordered_map>
 #include <utility>
 #include <vector>
+#include <memory>
 
 #include "common/util/hash_util.h"
 
@@ -108,6 +111,7 @@ class CountMinSketch {
   // table_ 用来存储 hash 计算后的信息，构造函数需要初始化它
   std::vector<std::vector<uint32_t>> table_;
   mutable std::mutex mutex_;  // mutable 允许我们在 const 函数内修改类状态
+  std::vector<std::unique_ptr<std::mutex>> row_locks_;
 };
 
 }  // namespace bustub

@@ -32,6 +32,12 @@ CountMinSketch<KeyType>::CountMinSketch(uint32_t width, uint32_t depth) : width_
   }
 
   table_.resize(depth_, std::vector<uint32_t>(width_, 0));
+
+  row_locks_.reserve(depth_);
+  for (uint32_t i = 0; i < depth_; i++) {
+    row_locks_.push_back(std::make_unique<std::mutex>());
+  }
+
   /** @spring2026 PLEASE DO NOT MODIFY THE FOLLOWING */
   // Initialize seeded hash functions
   hash_functions_.reserve(depth_);
@@ -45,6 +51,7 @@ CountMinSketch<KeyType>::CountMinSketch(CountMinSketch &&other) noexcept : width
   // 移动构造，使用右值引用
   /** @TODO(student) Implement this function! */
   table_ = std::move(other.table_);
+  row_locks_ = std::move(other.row_locks_);
   hash_functions_ = std::move(other.hash_functions_);
 }
 
@@ -65,6 +72,7 @@ auto CountMinSketch<KeyType>::operator=(CountMinSketch &&other) noexcept -> Coun
   // 移动需要拷贝的资源
   this->table_ = std::move(other.table_);
   this->hash_functions_ = std::move(other.hash_functions_);
+  this->row_locks_ = std::move(other.row_locks_);
 
   return *this;
 }
@@ -72,10 +80,14 @@ auto CountMinSketch<KeyType>::operator=(CountMinSketch &&other) noexcept -> Coun
 template <typename KeyType>
 void CountMinSketch<KeyType>::Insert(const KeyType &item) {
   /** @TODO(student) Implement this function! */
-  std::lock_guard<std::mutex> lock(mutex_);
   for (uint32_t row = 0; row < depth_; row++) {
     uint32_t col = hash_functions_[row](item) % width_;
-    table_[row][col]++;
+    
+    // 离开作用域，行级锁会自动释放
+    {
+      std::lock_guard<std::mutex> lock(row_locks_[row]);
+      table_[row][col]++;
+    }
   }
 }
 
