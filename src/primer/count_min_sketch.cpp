@@ -119,8 +119,25 @@ template <typename KeyType>
 auto CountMinSketch<KeyType>::TopK(uint16_t k, const std::vector<KeyType> &candidates)
     -> std::vector<std::pair<KeyType, uint32_t>> {
   /** @TODO(student) Implement this function! */
-  for (auto const &candidate : candidates) {
+  std::unordered_map<KeyType, uint32_t> counts;
+  for (const auto &candidate : candidates) {
+    if (counts.count(candidate) == 0) {
+      counts[candidate] = CountMinSketch::Count(candidate);
+    }
   }
+
+  std::vector<std::pair<KeyType, uint32_t>> result;
+  result.reserve(counts.size());
+  for (const auto &pair : counts) {
+    result.push_back(pair);
+  }
+  std::sort(result.begin(), result.end(), [](const auto &a, const auto &b) { return a.second > b.second; });
+
+  if (result.size() > k) {
+    result.resize(k);
+  }
+
+  return result;
 }
 
 // Explicit instantiations for all types used in tests
