@@ -82,10 +82,10 @@ void CountMinSketch<KeyType>::Insert(const KeyType &item) {
   /** @TODO(student) Implement this function! */
   for (uint32_t row = 0; row < depth_; row++) {
     uint32_t col = hash_functions_[row](item) % width_;
-    
+
     // 离开作用域，行级锁会自动释放
     {
-      std::lock_guard<std::mutex> lock(row_locks_[row]);
+      std::lock_guard<std::mutex> lock(*row_locks_[row]);
       table_[row][col]++;
     }
   }
