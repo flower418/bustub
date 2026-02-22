@@ -85,6 +85,11 @@ void CountMinSketch<KeyType>::Merge(const CountMinSketch<KeyType> &other) {
     throw std::invalid_argument("Incompatible CountMinSketch dimensions for merge.");
   }
   /** @TODO(student) Implement this function! */
+  for (uint32_t row = 0; row < depth_; row++) {
+    for (uint32_t col = 0; col < width_; col++) {
+      table_[row][col] += other->table_[row][col]
+    }
+  }
 }
 
 template <typename KeyType>
