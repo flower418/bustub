@@ -31,7 +31,7 @@ CountMinSketch<KeyType>::CountMinSketch(uint32_t width, uint32_t depth) : width_
     throw std::invalid_argument("Width and depth must be positive");
   }
 
-  table_.resize(depth_, std::vector<uint32_t>(width_, 0)); 
+  table_.resize(depth_, std::vector<uint32_t>(width_, 0));
   /** @spring2026 PLEASE DO NOT MODIFY THE FOLLOWING */
   // Initialize seeded hash functions
   hash_functions_.reserve(depth_);
@@ -87,7 +87,7 @@ void CountMinSketch<KeyType>::Merge(const CountMinSketch<KeyType> &other) {
   /** @TODO(student) Implement this function! */
   for (uint32_t row = 0; row < depth_; row++) {
     for (uint32_t col = 0; col < width_; col++) {
-      table_[row][col] += other->table_[row][col]
+      table_[row][col] += other.table_[row][col];
     }
   }
 }
@@ -110,16 +110,17 @@ auto CountMinSketch<KeyType>::Count(const KeyType &item) const -> uint32_t {
 template <typename KeyType>
 void CountMinSketch<KeyType>::Clear() {
   /** @TODO(student) Implement this function! */
-   for (auto &row : table_) {
+  for (auto &row : table_) {
     std::fill(row.begin(), row.end(), 0);
-   }
+  }
 }
 
 template <typename KeyType>
 auto CountMinSketch<KeyType>::TopK(uint16_t k, const std::vector<KeyType> &candidates)
     -> std::vector<std::pair<KeyType, uint32_t>> {
   /** @TODO(student) Implement this function! */
-  return {};
+  for (auto const &candidate : candidates) {
+  }
 }
 
 // Explicit instantiations for all types used in tests

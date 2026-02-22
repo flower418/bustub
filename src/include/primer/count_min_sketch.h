@@ -12,12 +12,12 @@
 
 #pragma once
 
+#include <climits>
 #include <cstdint>
 #include <functional>
+#include <mutex>
 #include <utility>
 #include <vector>
-#include <mutex>
-#include <climits>
 
 #include "common/util/hash_util.h"
 
@@ -107,7 +107,7 @@ class CountMinSketch {
   /** @todo (student) can add their data structures that support count-min sketch operations */
   // table_ 用来存储 hash 计算后的信息，构造函数需要初始化它
   std::vector<std::vector<uint32_t>> table_;
-  mutable std::mutex mutex_; // mutable 允许我们在 const 函数内修改类状态
+  mutable std::mutex mutex_;  // mutable 允许我们在 const 函数内修改类状态
 };
 
 }  // namespace bustub
