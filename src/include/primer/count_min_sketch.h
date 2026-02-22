@@ -103,6 +103,8 @@ class CountMinSketch {
   }
 
   /** @todo (student) can add their data structures that support count-min sketch operations */
+  // table_ 用来存储 hash 计算后的信息，构造函数需要初始化它
+  std::vector<std::vector<uint32_t>> table_;
 };
 
 }  // namespace bustub
